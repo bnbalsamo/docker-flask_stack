@@ -1,12 +1,10 @@
 A stack for deploying flask/django python applications via Docker, utilizing gunicorn and nginx.
 
+[Dockerhub](https://hub.docker.com/r/bnbalsamo/flask_stack/)
+
 # Usage
 
-- Build this image, tag it something you'll remember
-```
-# docker build . -t flask_stack
-```
-- Inherit from this image in your own projects Dockerfile.
+- Inherit from this image in your own project's Dockerfile.
 - Be sure to include a requirements.txt in the root directory of your project
 - Be sure to include a setup.py in the root directory of your project
 - Set any project specific environmental variables in your projects Dockerfile
@@ -15,28 +13,14 @@ A stack for deploying flask/django python applications via Docker, utilizing gun
 - Build your project
 - Run a container
 
-## Example Project Dockerfile
-
-```
-FROM flask_stack
-
-ARG MY_APP_VERBOSITY="WARN"
-ARG MY_APP_SECRET_KEY
-ENV MY_APP_VERBOSITY=$MY_APP_VERBOSITY \
-    MY_APP_SECRETY_KEY=$MY_APP_SECRET_KEY
-# Require a secret key on build -
-# You can always clobber it at run time to change it
-RUN ["test", "-n", "$MY_APP_SECRET_KEY"]
-
-ENV APP_NAME=my_app
-```
+See an example super minimal project [here](https://github.com/bnbalsamo/flask_stack_minimal_demo)
 
 ## Customization
 
 Functionality can be customized by tweaking environmental variables in any of the following places:
 
-- In this Dockerfile
-- In the CLI args to building the flask_stack image
+- In this Dockerfile, if you build locally
+- In the CLI args to building the flask_stack image, if you build locally
 - In your projects Dockerfile
 - In the CLI args to building your projects image
 - In the CLI args to starting your project container
