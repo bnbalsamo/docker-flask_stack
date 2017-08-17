@@ -1,0 +1,75 @@
+worker_processes $NGINX_WORKER_PROCESSES;
+
+user $NGINX_USER $NGINX_GROUP;
+# 'user nobody nobody;' for systems with 'nobody' as a group instead
+pid /tmp/nginx.pid;
+error_log /tmp/nginx.error.log;
+
+events {
+  worker_connections $NGINX_WORKER_CONNECTIONS; # increase if you have lots of clients
+  accept_mutex $NGINX_ACCEPT_MUTEX; # set to 'on' if nginx worker_processes > 1
+  $NGINX_EVENTS_EXTEND
+  # 'use epoll;' to enable for Linux 2.6+
+  # 'use kqueue;' to enable for FreeBSD, OSX
+}
+
+http {
+  include mime.types;
+  # fallback in case we can't determine a type
+  default_type application/octet-stream;
+  access_log /tmp/nginx.access.log combined;
+  sendfile $NGINX_SENDFILE;
+
+  upstream app_server {
+    # fail_timeout=0 means we always retry an upstream even if it failed
+    # to return a good HTTP response
+
+    # for UNIX domain socket setups
+    server unix:/tmp/gunicorn.sock fail_timeout=0;
+
+    # for a TCP configuration
+    # server 192.168.0.7:8000 fail_timeout=0;
+    $NGINX_UPSTREAM_EXTEND
+  }
+
+  server {
+    # if no Host match, close the connection to prevent host spoofing
+    listen $NGINX_PORT default_server;
+    return 444;
+  }
+
+  server {
+    # use 'listen 80 deferred;' for Linux
+    # use 'listen 80 accept_filter=httpready;' for FreeBSD
+    listen $NGINX_PORT deferred;
+    client_max_body_size $NGINX_CLIENT_MAX_BODY_SIZE;
+
+    # set the correct host(s) for your site
+    server_name localhost 127.0.0.1;
+
+    keepalive_timeout $NGINX_TIMEOUT;
+
+    # path for static files
+    root $NGINX_ROOT_DIR;
+
+    location / {
+      # checks for static file, if not found proxy to app
+      try_files $uri @proxy_to_app;
+    }
+
+    location @proxy_to_app {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      # enable this if and only if you use HTTPS
+      # proxy_set_header X-Forwarded-Proto https;
+      proxy_set_header Host $http_host;
+      # we don't want nginx trying to do something clever with
+      # redirects, we set the Host: header above already.
+      proxy_redirect off;
+      proxy_pass http://app_server;
+      $NGINX_PROXY_EXTEND
+    }
+    $NGINX_SERVER_EXTEND
+  }
+  $NGINX_HTTP_EXTEND
+}
+$NGINX_ROOT_EXTEND
