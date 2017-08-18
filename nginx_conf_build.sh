@@ -16,9 +16,3 @@ envsubst '$$NGINX_WORKER_PROCESSES \
           $$NGINX_ROOT_EXTEND \
           $$NGINX_UPSTREAM_EXTEND \
           $$NGINX_PROXY_EXTEND' < /etc/nginx/nginx.template > /etc/nginx/nginx.conf
-# Be sure an APP_NAME env var is available
-test -n "$APP_NAME"
-# Fire up gunicorn, bind to a socket, background
-gunicorn $APP_NAME:$APP_CALLABLE -k $GUNICORN_WORKER_TYPE -w $GUNICORN_WORKERS -t $GUNICORN_TIMEOUT -b unix:/tmp/gunicorn.sock $GUNICORN_CLI_EXTEND &
-# Fire up nginx, keep it in the foreground
-nginx -g "daemon off;" $NGINX_CLI_EXTEND

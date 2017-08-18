@@ -1,16 +1,30 @@
 FROM python:3.5
 # Set up nginx
 ENV NGINX_VERSION 1.9.11-1~jessie
-RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
+RUN apt-key adv \
+        --keyserver hkp://pgp.mit.edu:80 \
+        --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
     && echo "deb http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list \
-    && apt-get update \
-    && apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base \
-    && rm -rf /var/lib/apt/lists/*
+    && apt-get update -qq \
+    && apt-get install -y ca-certificates nginx=${NGINX_VERSION} gettext-base 
+COPY ./nginx_conf_build.sh /nginx_conf_build.sh
+COPY ./nginx.template /etc/nginx/nginx.template
+RUN chmod +x /nginx_conf_build.sh
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log
+# Set up runit - also clean up the package manager now
+#RUN apt-get update -qq && \
+RUN apt-get install --yes runit && \
+    rm -rf /var/lib/apt/lists/*
+COPY gunicorn_run /etc/sv/gunicorn/run
+COPY nginx_run /etc/sv/nginx/run
+RUN chmod +x /etc/sv/gunicorn/run && \
+    chmod +x /etc/sv/nginx/run && \
+    ln -s /etc/sv/gunicorn /etc/service/gunicorn && \
+    ln -s /etc/sv/nginx /etc/service/nginx
 # Grab all the args, toss them in the environment
 # NOTE: All of these pertaining to nginx.conf need to
-# ALSO appear in the launch.sh envsubst command
+# ALSO appear in the nginx_conf_build.sh envsubst command
 ARG NGINX_WORKER_PROCESSES=4
 ARG NGINX_USER=nobody
 ARG NGINX_GROUP=nogroup
@@ -57,10 +71,7 @@ ENV \
     GUNICORN_CLI_EXTEND=$GUNICORN_CLI_EXTEND \
     APP_CALLABLE=$APP_CALLABLE
 # Toss in the files we need.
-COPY ./launch.sh /launch.sh
-COPY ./nginx.template /etc/nginx/nginx.template
-# Make launch executable inside the container
-RUN chmod +x /launch.sh
+RUN ./nginx_conf_build.sh
 # Install the flask/gunicorn basics via pip
 RUN pip install flask greenlet eventlet gevent gunicorn
 # Copy in the code from project specific builds
@@ -70,4 +81,6 @@ ONBUILD WORKDIR /code
 ONBUILD RUN pip install -r requirements.txt
 ONBUILD RUN python /code/setup.py install 
 # We should be good to go, fire it up.
-CMD ["/bin/bash", "-c", "/launch.sh"]
+CMD /nginx_conf_build.sh && \
+    test -n $APP_NAME  && \
+    runsvdir -P /etc/service

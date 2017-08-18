@@ -1,0 +1,2 @@
+#!/bin/sh
+nginx -g "daemon off;" $NGINX_CLI_EXTEND
