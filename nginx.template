@@ -3,7 +3,7 @@ worker_processes $NGINX_WORKER_PROCESSES;
 user $NGINX_USER $NGINX_GROUP;
 # 'user nobody nobody;' for systems with 'nobody' as a group instead
 pid /tmp/nginx.pid;
-error_log /tmp/nginx.error.log;
+error_log /dev/stderr;
 
 events {
   worker_connections $NGINX_WORKER_CONNECTIONS; # increase if you have lots of clients
