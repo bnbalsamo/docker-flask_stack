@@ -14,6 +14,7 @@ events {
 }
 
 http {
+  access_log /dev/stdout;
   include mime.types;
   # fallback in case we can't determine a type
   default_type application/octet-stream;
@@ -33,19 +34,10 @@ http {
   }
 
   server {
-    # if no Host match, close the connection to prevent host spoofing
-    listen $NGINX_PORT default_server;
-    return 444;
-  }
-
-  server {
     # use 'listen 80 deferred;' for Linux
     # use 'listen 80 accept_filter=httpready;' for FreeBSD
     listen $NGINX_PORT deferred;
     client_max_body_size $NGINX_CLIENT_MAX_BODY_SIZE;
-
-    # set the correct host(s) for your site
-    server_name localhost 127.0.0.1;
 
     keepalive_timeout $NGINX_TIMEOUT;
 
