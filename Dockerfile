@@ -70,8 +70,6 @@ ENV \
     GUNICORN_TIMEOUT=$GUNICORN_TIMEOUT \
     GUNICORN_CLI_EXTEND=$GUNICORN_CLI_EXTEND \
     APP_CALLABLE=$APP_CALLABLE
-# Toss in the files we need.
-RUN ./nginx_conf_build.sh
 # Install the flask/gunicorn basics via pip
 RUN pip install flask greenlet eventlet gevent gunicorn
 # Copy in the code from project specific builds
