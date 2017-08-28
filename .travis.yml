@@ -1,0 +1,5 @@
+sudo: required
+language: bash
+script: ./test.sh
+services:
+    - docker

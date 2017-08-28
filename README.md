@@ -1,4 +1,8 @@
+[![Build Status](https://travis-ci.org/bnbalsamo/docker-flask_stack.svg?branch=master)](https://travis-ci.org/bnbalsamo/docker-flask_stack)
+
 A stack for deploying flask/django python applications via Docker, utilizing gunicorn, nginx, and runit.
+
+v0.0.1
 
 [Dockerhub](https://hub.docker.com/r/bnbalsamo/flask_stack/)
 
