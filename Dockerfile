@@ -132,7 +132,10 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
 	&& ln -sf /dev/stdout /var/log/nginx/access.log \
 	&& ln -sf /dev/stderr /var/log/nginx/error.log && \
 	# End nginx Dockerfile copy-paste
-	apk --update upgrade && apk add runit && rm -rf /var/cache/apk/*
+        echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+	&& apk-install --update ca-certificates                \
+	&& update-ca-certificates                              \
+	&& apk-install runit
 
 COPY ./nginx_conf_build.sh /nginx_conf_build.sh
 COPY ./nginx.template /etc/nginx/nginx.template
