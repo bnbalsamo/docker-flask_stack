@@ -1,8 +1,13 @@
 FROM python:3.5-alpine
+# Slot in the stuff we'll need for making the nginx conf
+COPY ./nginx_conf_build.sh /nginx_conf_build.sh
+COPY ./nginx.template /etc/nginx/nginx.template
+# And the runit service definitions
+COPY gunicorn_run /etc/sv/gunicorn/run
+COPY nginx_run /etc/sv/nginx/run
 # Set up nginx
 # This is copy-pasted from the nginx Dockerfile
 ENV NGINX_VERSION 1.12.1
-
 RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     && CONFIG="\
         --prefix=/etc/nginx \
@@ -131,26 +136,20 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     && ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log \
     # End nginx Dockerfile copy-paste
+    # Install runit
     && echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
-    && apk --update upgrade && apk add runit && rm -rf /var/cache/apk/* \
+    && apk --update upgrade && apk add runit \
     # Install the flask/gunicorn basics via pip
-    && pip install flask greenlet eventlet gevent gunicorn
-    # The following line slims the container a bit, but removes essential build
-    # components - depending on what the payload is pulling/building this
-    # can break things, so I'm not going to do it by default.
-    # && apk del .build-deps 
+    # Pip complains about the dir it's being run in disappearing,
+    # so plop in back in the root before running it.
+    && cd / && pip install flask greenlet eventlet gevent gunicorn \
+    # Make our own stuff executable and link it where it needs to go
+    && chmod +x /etc/sv/gunicorn/run \
+    && chmod +x /etc/sv/nginx/run \
+    && ln -s /etc/sv/gunicorn /etc/service/gunicorn \
+    && ln -s /etc/sv/nginx /etc/service/nginx \
+    && chmod +x /nginx_conf_build.sh
 
-# Slot in the stuff we'll need for making the nginx conf
-COPY ./nginx_conf_build.sh /nginx_conf_build.sh
-COPY ./nginx.template /etc/nginx/nginx.template
-RUN chmod +x /nginx_conf_build.sh
-# Set up runit - also clean up the package manager now
-COPY gunicorn_run /etc/sv/gunicorn/run
-COPY nginx_run /etc/sv/nginx/run
-RUN chmod +x /etc/sv/gunicorn/run && \
-    chmod +x /etc/sv/nginx/run && \
-    ln -s /etc/sv/gunicorn /etc/service/gunicorn && \
-    ln -s /etc/sv/nginx /etc/service/nginx
 # Grab all the args, toss them in the environment
 # NOTE: All of these pertaining to nginx.conf need to
 # ALSO appear in the nginx_conf_build.sh envsubst command
@@ -205,6 +204,11 @@ ONBUILD COPY . /code/
 ONBUILD WORKDIR /code
 ONBUILD RUN pip install -r requirements.txt
 ONBUILD RUN python /code/setup.py install 
+# Comment this and do it yourself later
+# if you want to install/build stuff in
+# your application image
+ONBUILD RUN apk del .build-deps \ 
+    && rm -rf /var/cache/apk/*  
 # We should be good to go, fire it up.
 CMD /nginx_conf_build.sh && \
     test -n $APP_NAME  && \

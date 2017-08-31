@@ -21,4 +21,6 @@ response=$(curl --silent localhost:5000)
 echo "$response"
 if [[ $response != "Hello, World"'!' ]]; then echo "$response" && exit 1; fi || exit 1
 echo "All good!"
+echo "Here's some stats"
+docker images
 exit 0
