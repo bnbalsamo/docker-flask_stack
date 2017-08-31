@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Building Template..."
-docker build . -t flask_stack_test
-echo "Cloning Demo..." 
+docker build . -t flask_stack_test && \
+echo "Cloning Demo..." && \
 git clone https://github.com/bnbalsamo/flask_stack_minimal_demo.git || exit 1 
 cd flask_stack_minimal_demo || exit 1 
 echo "Altering demo Dockerfile"
