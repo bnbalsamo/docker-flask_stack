@@ -1,4 +1,4 @@
-FROM python:3.5-apline
+FROM python:3.5-alpine
 # Set up nginx
 # This is copy-pasted from the nginx Dockerfile
 ENV NGINX_VERSION 1.12.1
