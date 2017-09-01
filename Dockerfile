@@ -148,7 +148,8 @@ RUN GPG_KEYS=B0F4253373F8F6F510D42178520A9993A1C052F8 \
     && chmod +x /etc/sv/nginx/run \
     && ln -s /etc/sv/gunicorn /etc/service/gunicorn \
     && ln -s /etc/sv/nginx /etc/service/nginx \
-    && chmod +x /nginx_conf_build.sh
+    && chmod +x /nginx_conf_build.sh \
+    && apk del .build-deps
 
 # Grab all the args, toss them in the environment
 # NOTE: All of these pertaining to nginx.conf need to
@@ -202,13 +203,15 @@ ENV \
 # and install it
 ONBUILD COPY . /code/
 ONBUILD WORKDIR /code
-ONBUILD RUN pip install -r requirements.txt
-ONBUILD RUN python /code/setup.py install 
-# Comment this and do it yourself later
-# if you want to install/build stuff in
-# your application image
-ONBUILD RUN apk del .build-deps \ 
-    && rm -rf /var/cache/apk/*  
+ONBUILD RUN \
+    apk add --no-cache --virtual .build-deps \
+        # Pull alpine-sdk in so most stuff _probably_ builds
+        # if it requires external libs
+        alpine-sdk \
+    && pip install -r requirements.txt \
+    && python /code/setup.py install \
+    && rm -rf /var/cache/apk/* \
+    && apk del .build-deps
 # We should be good to go, fire it up.
 CMD /nginx_conf_build.sh && \
     test -n $APP_NAME  && \
