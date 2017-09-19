@@ -2,6 +2,7 @@ FROM python:3.5-alpine
 # Slot in the stuff we'll need for making the nginx conf
 COPY ./nginx_conf_build.sh /nginx_conf_build.sh
 COPY ./nginx.template /etc/nginx/nginx.template
+COPY ./install_user_specified_packages.sh /install_user_specified_packages.sh
 # And the runit service definitions
 COPY gunicorn_run /etc/sv/gunicorn/run
 COPY nginx_run /etc/sv/nginx/run
@@ -208,6 +209,7 @@ ONBUILD RUN \
         # Pull alpine-sdk in so most stuff _probably_ builds
         # if it requires external libs
         alpine-sdk \
+    && sh /install_user_specified_packages.sh \
     && pip install -r requirements.txt \
     && python /code/setup.py install \
     && rm -rf /var/cache/apk/* \
