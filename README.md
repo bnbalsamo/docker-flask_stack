@@ -5,6 +5,7 @@ A stack for deploying flask/django python applications via Docker, utilizing gun
 v0.2.0
 
 [Github](https://github.com/bnbalsamo/docker-flask_stack)
+
 [Dockerhub](https://hub.docker.com/r/bnbalsamo/flask_stack/)
 
 # Usage
