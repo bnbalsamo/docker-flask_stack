@@ -2,7 +2,7 @@
 
 A stack for deploying flask/django python applications via Docker, utilizing gunicorn, nginx, and runit.
 
-v0.2.0
+v0.3.0
 
 [Github](https://github.com/bnbalsamo/docker-flask_stack)
 
