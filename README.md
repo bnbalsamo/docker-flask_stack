@@ -14,7 +14,7 @@ v0.2.0
 - Set any project specific environmental variables in your projects Dockerfile
 - Set the environmental variable APP_NAME to the module name which contains your wsgi callable
 - Optionally, include a file named apk_packages.txt in your project directory
-    - This should be a file with one alpine package name per line
+    - This should be a file with one alpine package name per line, **ending with a blank line**
     - These will be installed via ```apk add --no-cache $x``` _before_ your python package is built
 - Optionally, include a requirements.txt in the root directory of your project
     - Requirements in requirements.txt will be installed via ```pip -r requirements.txt``` _before_ setup.py is invoked
