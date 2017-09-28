@@ -10,11 +10,15 @@ v0.2.0
 # Usage
 
 - Inherit from this image in your own project's Dockerfile.
-- Be sure to include a requirements.txt in the root directory of your project
 - Be sure to include a setup.py in the root directory of your project
 - Set any project specific environmental variables in your projects Dockerfile
 - Set the environmental variable APP_NAME to the module name which contains your wsgi callable
-- Set the environmental variable APP_CALLABLE if the callable is not named "app"
+- Optionally, include a file named apk_packages.txt in your project directory
+    - This should be a file with one alpine package name per line
+    - These will be installed via ```apk add --no-cache $x``` _before_ your python package is built
+- Optionally, include a requirements.txt in the root directory of your project
+    - Requirements in requirements.txt will be installed via ```pip -r requirements.txt``` _before_ setup.py is invoked
+- Optionally, set the environmental variable APP_CALLABLE if the callable is not named "app"
 - Build your project
 - Run a container
 
