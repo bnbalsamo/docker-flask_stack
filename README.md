@@ -23,7 +23,9 @@ v0.3.0
 - Build your project
 - Run a container
 
-See an example super minimal project [here](https://github.com/bnbalsamo/flask_stack_minimal_demo)
+See an example super minimal flask project [here](https://github.com/bnbalsamo/flask_stack_minimal_demo)
+
+See an example super minimal django project [here](https://github.com/bnbalsamo/flask_stack_minimal_django_demo)
 
 ## Customization
 
