@@ -211,7 +211,7 @@ ONBUILD RUN \
 
     && if [ -e /code/apk_packages.txt ]; then while IFS='' read line; do apk add --no-cache $line; done < /code/apk_packages.txt; fi \
     && python /code/setup.py install \
-    && if [ -e requirements.txt ]; then pip install -r requirements.txt; fi \
+    && if [ -e /code/requirements.txt ]; then pip install -r /code/requirements.txt; fi \
     && rm -rf /var/cache/apk/* \
     && apk del .build-deps
 # We should be good to go, fire it up.
