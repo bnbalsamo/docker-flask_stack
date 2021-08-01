@@ -1,3 +1,12 @@
+# ARCHIVED
+
+This repository is archived. I am no longer actively developing/supporting it.
+
+If you are interested in discussing the contents of this repository feel free to contact me
+via the contact details provided in the "Author" section below.
+
+---
+
 [![Build Status](https://travis-ci.org/bnbalsamo/docker-flask_stack.svg?branch=master)](https://travis-ci.org/bnbalsamo/docker-flask_stack)
 
 A stack for deploying flask/django python applications via Docker, utilizing gunicorn, nginx, and runit.
